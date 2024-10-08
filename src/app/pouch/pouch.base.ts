@@ -1,13 +1,13 @@
-import { GamePouchContent } from '../games/games.models';
+import { PostPouchContent } from '../posts/posts.models';
 import { UserPouchContent } from '../user/user.models';
 
-export type PouchContentBase = PouchDB.Core.IdMeta &
+export type PouchContentBase = Partial<PouchDB.Core.IdMeta> &
   Partial<PouchDB.Core.GetMeta> &
   Partial<PouchDB.Core.ChangesMeta>;
 
 export enum PouchContentType {
-  game = 'game',
+  post = 'post',
   user = 'user',
 }
 
-export type PouchContent = GamePouchContent | UserPouchContent;
+export type PouchContent = PostPouchContent | UserPouchContent;

@@ -1,0 +1,20 @@
+<h1>Add new post</h1>
+<form (ngSubmit)="addPost()">
+  <input type="text" name="title" id="title" [(ngModel)]="title" />
+  <br />
+  <br />
+  <textarea type="number" name="year" id="year" [(ngModel)]="body"></textarea>
+  <br />
+  <br />
+  <button type="submit">Add Game</button>
+</form>
+
+<br />
+<br />
+
+<h1>Posts</h1>
+<ul>
+  @for (post of posts(); track post._id) {
+  <li>{{ post.title }}</li>
+  }
+</ul>

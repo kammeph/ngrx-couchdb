@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import PouchDB from 'pouchdb';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { GamePouchContent } from '../games/games.models';
+import { PostPouchContent } from '../posts/posts.models';
 import { UserPouchContent } from '../user/user.models';
 import { PouchContent, PouchContentBase, PouchContentType } from './pouch.base';
 
@@ -15,20 +15,32 @@ export class PouchService {
   private _changes: {
     [key in PouchContentType]: BehaviorSubject<PouchDB.Core.ExistingDocument<any> | null>;
   } = {
-    game: new BehaviorSubject<GamePouchContent | null>(null),
-    user: new BehaviorSubject<UserPouchContent | null>(null),
+    post: new BehaviorSubject<PouchDB.Core.ExistingDocument<PostPouchContent> | null>(
+      null
+    ),
+    user: new BehaviorSubject<PouchDB.Core.ExistingDocument<UserPouchContent> | null>(
+      null
+    ),
   };
 
   constructor() {
     this.init();
   }
 
-  public changes(type: PouchContentType): Observable<PouchContent | null> {
+  public changes<T extends PouchContentBase>(
+    type: PouchContentType
+  ): Observable<PouchDB.Core.ExistingDocument<T> | null> {
     return this._changes[type].asObservable();
   }
 
   public async getDoc<T extends PouchContentBase>(docId: string): Promise<T> {
     return await this.pouchDB!.get(docId);
+  }
+
+  public async postDoc<T extends PouchContentBase>(
+    doc: PouchDB.Core.PostDocument<PouchContent & T>
+  ): Promise<PouchDB.Core.Response> {
+    return await this.pouchDB!.post(doc);
   }
 
   public async putDoc<T extends PouchContentBase>(
@@ -72,12 +84,19 @@ export class PouchService {
         );
       }
     );
+
+    await this.cacheAllDocs();
   }
 
   private processDocsChanges(
     docs: PouchDB.Core.ExistingDocument<PouchContent>[]
   ) {
     for (const doc of docs) {
+      if (doc._deleted) {
+        this.processDeletedDocs(doc);
+        continue;
+      }
+
       this.dispatchDocChanges(doc);
     }
   }
@@ -88,7 +107,7 @@ export class PouchService {
     console.debug('[PouchService] dispatchDocChanges', doc);
 
     // check if doc type is supported
-    if (this._changes[doc.type]) {
+    if (this._changes[doc.type] || doc._deleted) {
       console.debug('[PouchService] dispatchDocChanges type', doc.type);
       this._changes[doc.type].next(doc);
     } else {
@@ -98,5 +117,54 @@ export class PouchService {
         doc
       );
     }
+  }
+
+  private async cacheAllDocs(): Promise<void> {
+    console.time('[PouchService] cacheAllDocs');
+
+    // load all docs
+    const docs = await this.pouchDB!.allDocs({ include_docs: true });
+
+    // process the docs changes
+    await this.processDocsChanges(
+      docs.rows
+        .map((row) => row.doc!)
+        .filter((doc) => !doc._id.startsWith('_design/'))
+    );
+
+    console.timeEnd('[PouchService] cacheAllDocs');
+  }
+
+  /**
+   * Process the deleted docs.
+   */
+  private async processDeletedDocs(
+    doc: PouchDB.Core.ExistingDocument<PouchContent>
+  ): Promise<void> {
+    // calculate last doc rev
+    const rev = doc._revisions
+      ? doc._revisions.start - 1 + '-' + doc._revisions.ids[1]
+      : doc._rev;
+
+    try {
+      // get last doc by rev
+      const lastDoc = await this.pouchDB!.get(doc._id, { rev });
+
+      // set the type for the deleted doc. type is readonly so the as any is ok.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (doc as any).type = lastDoc.type;
+      console.debug('[PouchService] processDeletedDocs type', doc.type);
+    } catch (error) {
+      // can not get last doc by ref so just continue with next doc
+      console.debug(
+        '[PouchService] processDeletedDocs error',
+        doc._id,
+        rev,
+        error
+      );
+    }
+
+    // dispatch the doc changes
+    this.dispatchDocChanges(doc);
   }
 }
