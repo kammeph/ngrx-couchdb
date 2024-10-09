@@ -1,11 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { PouchService } from './pouch/pouch.service';
-import { PouchContentType } from './pouch/pouch.base';
-import { Store } from '@ngrx/store';
-import { addPost } from './posts/posts.actions';
-import { selectPosts } from './posts/posts.selectors';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PostPouchContent } from './posts/posts.models';
 
 @Component({
   selector: 'app-root',
@@ -18,21 +14,11 @@ import { FormsModule } from '@angular/forms';
 export class AppComponent {
   public title = signal('');
   public body = signal('');
-  public posts = this.store.selectSignal(selectPosts);
+  public posts = signal<PostPouchContent[]>([]);
 
-  constructor(private readonly store: Store) {}
+  constructor() {}
 
   public addPost() {
-    this.store.dispatch(
-      addPost({
-        post: {
-          title: this.title(),
-          body: this.body(),
-          type: PouchContentType.post,
-        },
-      })
-    );
-
     this.title.set('');
     this.body.set('');
   }

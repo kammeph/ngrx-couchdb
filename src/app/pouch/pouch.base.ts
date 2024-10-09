@@ -1,5 +1,6 @@
 import { PostPouchContent } from '../posts/posts.models';
 import { UserPouchContent } from '../user/user.models';
+import {} from 'pouchdb';
 
 export type PouchContentBase = Partial<PouchDB.Core.IdMeta> &
   Partial<PouchDB.Core.GetMeta> &
