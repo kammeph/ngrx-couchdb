@@ -1,16 +1,9 @@
 import { createAction, props } from '@ngrx/store';
 import { PostPouchContent } from './posts.models';
 
-export const loadPosts = createAction('[Posts] Load');
-
-export const setPosts = createAction(
-  '[Posts] Set',
-  props<{ posts: PostPouchContent[] }>()
-);
-
-export const updatePost = createAction(
+export const updatePosts = createAction(
   '[Posts] Update',
-  props<{ post: PostPouchContent | null }>()
+  props<{ post: PostPouchContent }>()
 );
 
 export const addPost = createAction(

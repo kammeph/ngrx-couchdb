@@ -7,8 +7,3 @@ export const selectPosts = createSelector(
   selectPostsFeature,
   (state: PostsState) => state.posts
 );
-
-export const selectLoading = createSelector(
-  selectPostsFeature,
-  (state: PostsState) => state.loading
-);
