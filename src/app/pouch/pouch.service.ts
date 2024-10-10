@@ -5,11 +5,13 @@ import { PostPouchContent } from '../posts/posts.models';
 import { UserPouchContent } from '../user/user.models';
 import { PouchContent, PouchContentBase, PouchContentType } from './pouch.base';
 
+const COUCH_DB_URL = 'http://admin:password@127.0.0.1:5984/admin/';
+const POUCH_DB_NAME = 'admin';
+
 @Injectable({
   providedIn: 'root',
 })
 export class PouchService {
-  private dbUrl = 'http://admin:password@127.0.0.1:5984/admin/';
   private couchDB?: PouchDB.Database<PouchContent>;
   private pouchDB?: PouchDB.Database<PouchContent>;
   private _changes: {
@@ -62,8 +64,8 @@ export class PouchService {
   }
 
   public async init(): Promise<void> {
-    this.couchDB = new PouchDB<PouchContent>(this.dbUrl);
-    this.pouchDB = new PouchDB<PouchContent>('admin');
+    this.couchDB = new PouchDB<PouchContent>(COUCH_DB_URL);
+    this.pouchDB = new PouchDB<PouchContent>(POUCH_DB_NAME);
 
     const syncOptions: PouchDB.Replication.SyncOptions = {
       live: true,

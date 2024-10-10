@@ -11,6 +11,7 @@ import { provideEffects } from '@ngrx/effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { postsReducer } from './posts/posts.reducer';
 import { PostsEffects } from './posts/posts.effects';
+import {} from 'pouchdb';
 
 export const appConfig: ApplicationConfig = {
   providers: [

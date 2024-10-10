@@ -1,21 +1,21 @@
 import { createReducer, on } from '@ngrx/store';
-import { updatePosts } from './posts.actions';
 import { PostPouchContent } from './posts.models';
+import { updatePosts } from './posts.actions';
 
 export interface PostsState {
   posts: PostPouchContent[];
 }
 
-const initialState: PostsState = {
+const intitialState: PostsState = {
   posts: [],
 };
 
 export const postsReducer = createReducer(
-  initialState,
+  intitialState,
   on(updatePosts, (state, { post }) => {
     const posts = post._deleted
-      ? state.posts.filter((g) => g._id !== post._id)
-      : [...state.posts.filter((g) => g._id !== post._id), post];
+      ? state.posts.filter((p) => p._id !== post._id)
+      : [...state.posts.filter((p) => p._id !== post._id), post];
 
     return {
       ...state,

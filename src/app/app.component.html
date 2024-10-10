@@ -1,9 +1,13 @@
 <h1>Add new post</h1>
 <form (ngSubmit)="addPost()">
+  <label for="title">Title</label>
+  <br />
   <input type="text" name="title" id="title" [(ngModel)]="title" />
   <br />
   <br />
-  <textarea type="number" name="year" id="year" [(ngModel)]="body"></textarea>
+  <label for="body">Body</label>
+  <br />
+  <textarea type="number" name="body" id="body" [(ngModel)]="body"></textarea>
   <br />
   <br />
   <button type="submit">Add Game</button>

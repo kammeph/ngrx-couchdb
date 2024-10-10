@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { PouchService } from './pouch/pouch.service';
-import { PouchContentType } from './pouch/pouch.base';
-import { Store } from '@ngrx/store';
-import { addPost } from './posts/posts.actions';
-import { selectPosts } from './posts/posts.selectors';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PostPouchContent } from './posts/posts.models';
+import { Store } from '@ngrx/store';
+import { selectPosts } from './posts/posts.selectors';
+import { addPost } from './posts/posts.actions';
+import { PouchContentType } from './pouch/pouch.base';
 
 @Component({
   selector: 'app-root',
@@ -26,13 +26,12 @@ export class AppComponent {
     this.store.dispatch(
       addPost({
         post: {
+          type: PouchContentType.post,
           title: this.title(),
           body: this.body(),
-          type: PouchContentType.post,
         },
       })
     );
-
     this.title.set('');
     this.body.set('');
   }

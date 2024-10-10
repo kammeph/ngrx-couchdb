@@ -5,5 +5,5 @@ export const selectPostsFeature = createFeatureSelector<PostsState>('posts');
 
 export const selectPosts = createSelector(
   selectPostsFeature,
-  (state: PostsState) => state.posts
+  (state) => state.posts
 );
